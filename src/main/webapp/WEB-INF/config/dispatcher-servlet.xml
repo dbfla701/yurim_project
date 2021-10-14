@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+                           http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+                           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd ">
+
+	<context:component-scan
+		base-package="com.min.*" scoped-proxy="no">
+	</context:component-scan>
+
+	<mvc:annotation-driven />
+
+	<!-- js, css 넣을 폴더 경로 지정 -->
+		<mvc:resources mapping="/resources/**"
+		location="/resources/" />
+	<mvc:resources mapping="/css/**" location="/css/" />
+	<mvc:resources mapping="/js/**" location="/js/" />
+	<mvc:resources mapping="/images/**"
+		location="/images/" />
+	<mvc:resources mapping="/assets/**"
+		location="/assets/" />
+
+	<!-- 다국어 페이지 -->
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxUploadSize" value="100000" />
+	</bean>
+
+	<bean id="messageSource"
+		class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basenames">
+			<list>
+			<value>massage.message-common_en</value>
+<!-- 				<value>/WEB-INF/message/message-common_en</value>
+				<value>/WEB-INF/message/message-common_ko</value> -->
+			</list>
+		</property>
+	</bean>
+	
+	<!-- oracle -->
+     <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="org.mariadb.jdbc.Driver"></property>
+
+        <property name="url" value="jdbc:mysql://localhost:3306/project"></property>
+        <property name="username" value="root"></property>
+        <property name="password" value="1234"></property>
+
+    </bean>
+        
+	<!-- 3. MyBatis의 SqlsessionFactory 객체를 Bean -->
+	<bean id="sqlSessionFactory"
+		class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation"
+			value="classpath:/sqlmap/example/sql-mapper-config.xml" />
+	</bean>
+	<!--4. Spring에서 사용 하는 Bean 객체 Autowired or Resource 통해서 사용하는 객체 -->
+	<bean id="sqlSession"
+		class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="sqlSessionFactory" />
+	</bean>
+
+	<!-- <bean id="AdminInterceptor"
+		class="com.min.interceptor.AdminInterceptor" />
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/admin/noticeAllList.do" />
+			<mvc:mapping path="/admin/noticeForm.do" />
+			<mvc:mapping path="/admin/pwUpdate.do" />
+			<mvc:mapping path="/admin/storyAllList.do" />
+			<mvc:mapping path="/admin/storyAllListDetail.do" />
+			<mvc:mapping path="/admin/storyDenyList.do" />
+			<mvc:mapping path="/admin/storyPermitList.do" />
+			<ref bean="AdminInterceptor" />
+		</mvc:interceptor>
+	</mvc:interceptors> -->
+
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix"
+			value="/WEB-INF/jsp/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+	<!-- mail -->
+	<bean id="mailSender"
+		class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="smtp.gmail.com" />
+		<property name="port" value="587" />
+		<property name="username" value="dbfla705@gmail.com" />
+		<property name="password" value="dbs8113." />
+		<property name="defaultEncoding" value="utf-8" />
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.debug">true</prop>
+				<prop key="mail.smtp.starttls.required">true</prop>
+				<prop key="mail.smtp.starttls.enable">true</prop>
+				<prop key="mail.smtp.auth">true</prop>
+			</props>
+		</property>
+	</bean>
+
+</beans>

@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="sqlmap.example.BoardMapper">
+
+	<!-- 유저 회원가입 -->
+	<insert id="joinUser" parameterType="UserDto">
+		INSERT INTO USER (NAME,ID,PW,EMAIL1,EMAIL2,AUTH)
+		VALUES (#{name},#{id},#{pw},#{email1},#{email2},DEFAULT)
+	</insert>
+
+	<!-- 로그인 count -->
+	<select id="userCount" parameterType="UserDto" resultType="int">
+		SELECT
+		COUNT(*) FROM USER WHERE ID=#{id} AND PW=#{pw}
+	</select>
+	
+	<!-- 로그인 -->
+	<select id="userLogin" parameterType="UserDto" resultType="UserDto">
+		SELECT
+		ID,AUTH FROM USER WHERE ID=#{id} AND PW=#{pw}
+	</select>
+	
+	<!-- 공지사항 리스트 -->
+	<select id="noticeList" resultType="NoticeDto" parameterType="hashMap">
+		SELECT SEQ, SORT, TITLE, REGDATE, RENUM FROM NOTICE
+		ORDER BY
+		<choose>
+			<when test="row=='regdate'">
+				 REGDATE DESC
+			</when>
+			<when test="row=='renum'">
+				 RENUM DESC
+			</when>
+			<when test="row=='title'">
+				 TITLE
+			</when>
+		</choose>
+			LIMIT ${displayPost}, ${postNum}
+	</select>
+	
+	<!-- 페이징 할때 -->
+	<select id="noticeCount" resultType="int">
+		SELECT COUNT(*) FROM NOTICE
+	</select>
+	
+	<!-- 페이징 할때 -->
+	<select id="commuCount" resultType="int">
+		SELECT COUNT(*) FROM COMMUNITY
+	</select>
+	
+	<!-- 페이징 할때 -->
+	<select id="meetingCount" resultType="int">
+		SELECT COUNT(*) FROM MEETING
+	</select>
+	
+	<!-- 공지사항 상세보기 -->
+	<select id="noticeDetail" resultType="NoticeDto"  parameterType="NoticeDto">
+		SELECT SEQ,TITLE,CONTENT,REGDATE,RENUM, ID FROM NOTICE WHERE TITLE=#{title}
+	</select>
+	
+	<!-- 공지사항 글쓰기 -->
+	<insert id="noticeWrite" parameterType="NoticeDto">
+		INSERT INTO NOTICE (SORT, TITLE, CONTENT, REGDATE, ID, RENUM) VALUES (
+		#{sort},#{title},#{content},DEFAULT, #{id},0)
+	</insert>
+	
+	<!-- 공지사항 삭제 -->
+	<delete id="noticeDelete" parameterType="NoticeDto">
+	DELETE FROM NOTICE WHERE SEQ=${seq}
+	</delete>
+	
+	<!-- 공지사항 글 수정 -->
+	<update id="noticeModify" parameterType="NoticeDto">
+	UPDATE NOTICE SET SORT=#{sort}, TITLE=#{title}, CONTENT=#{content}
+	WHERE SEQ=${seq}
+	</update>
+	
+	<!-- 공지사항 글 수정 select -->
+	<select id="modifySelect" resultType="NoticeDto"  parameterType="NoticeDto">
+		SELECT SEQ, SORT,TITLE,CONTENT FROM NOTICE WHERE SEQ=${seq}
+	</select>
+	
+	<!-- 조회수 증가-->
+	<update id="updateView" parameterType="NoticeDto">
+		UPDATE NOTICE SET RENUM = RENUM + 1 WHERE TITLE=#{title}
+	</update>
+	
+	<!-- 검색 기능 -->
+	<select id="search" parameterType="String" resultType="NoticeDto">
+		SELECT SORT, TITLE, REGDATE, RENUM FROM NOTICE WHERE TITLE LIKE CONCAT('%',#{title},'%')
+	</select>
+	
+	<!-- 검색 기능 -->
+	<select id="search2" parameterType="String" resultType="CommuDto">
+		SELECT SEQ, TITLE, REGDATE, ID, RENUM FROM COMMUNITY WHERE TITLE LIKE CONCAT('%',#{title},'%')
+	</select>
+	
+	<!-- 커뮤니티 유저 글 등록-->
+	<insert id="commuWrite" parameterType="CommuDto">
+		INSERT INTO COMMUNITY (ID, TITLE, CONTENT, REGDATE, RENUM) values
+		(#{id},#{title},#{content},default,0)
+	</insert>
+	
+	<!-- 커뮤니티 유저 글 목록-->
+	<select id="commuSelect" resultType="CommuDto" parameterType="hashMap">
+		SELECT SEQ, TITLE, REGDATE, ID, RENUM FROM COMMUNITY
+		ORDER BY
+		<choose>
+			<when test="row=='regdate'">
+				 REGDATE DESC
+			</when>
+			<when test="row=='renum'">
+				 RENUM DESC
+			</when>
+			<when test="row=='title'">
+				 TITLE
+			</when>
+		</choose>
+			LIMIT ${displayPost}, ${postNum}
+	</select>
+	
+	<!-- 커뮤니티 상세보기 -->
+	<select id="commuDetail" resultType="CommuDto"  parameterType="CommuDto">
+		SELECT SEQ,ID,TITLE,CONTENT,REGDATE,RENUM FROM COMMUNITY WHERE TITLE=#{title}
+	</select>
+	
+	<!-- 조회수 증가-->
+	<update id="updateViewCommu" parameterType="CommuDto">
+		UPDATE COMMUNITY SET RENUM = RENUM + 1 WHERE TITLE=#{title}
+	</update>
+	
+	<!-- 내가 쓴 글 select -->
+	<select id="myWriteList" parameterType="UserDto" resultType="CommuDto">
+	SELECT * FROM COMMUNITY WHERE ID=#{id}
+	</select>
+	<select id="myWriteList2" parameterType="UserDto" resultType="MeetDto">
+	SELECT * FROM MEETING WHERE ID=#{id}
+	</select>
+	
+	<!-- 모임 생성-->
+	<insert id="meetingCreate" parameterType="MeetDto">
+		INSERT INTO MEETING (ID, TITLE, CONTENT, REGDATE, RENUM) VALUES
+		(#{id},#{title},#{content},default,0)
+	</insert>
+	
+	<!-- 전체 모임 list -->
+	<select id="meetingList" resultType="MeetDto" parameterType="hashMap">
+		SELECT SEQ, TITLE, REGDATE, ID, RENUM FROM MEETING
+		ORDER BY
+		<choose>
+			<when test="row=='regdate'">
+				 REGDATE DESC
+			</when>
+			<when test="row=='renum'">
+				 RENUM DESC
+			</when>
+			<when test="row=='title'">
+				 TITLE
+			</when>
+		</choose>
+		LIMIT ${displayPost}, ${postNum}
+	</select>
+	
+	<!-- 모임 상세보기 -->
+	 <select id="meetingDetail" resultType="MeetDto"  parameterType="MeetDto">
+		SELECT SEQ, ID,TITLE,CONTENT,REGDATE,RENUM FROM MEETING WHERE SEQ=#{seq}
+	</select>
+	
+	<!-- 모임 글 조회수-->
+	<update id="updateViewMeeting" parameterType="MeetDto">
+		UPDATE MEETING SET RENUM = RENUM + 1 WHERE SEQ=#{seq}
+	</update>
+	
+	<!-- 로그인 기록 -->
+	<insert id="history" parameterType="UserDto">
+		INSERT INTO HISTORY (ID,IP,REGDATE) VALUES (#{id},#{ip},default)
+	</insert>
+	
+	<!-- 로그인 select -->
+	<select id="historySelect" resultType="UserDto">
+	select * from HISTORY
+	</select>
+	
+	<!-- main 리스트 띄우기-->
+	<select id="commuSelect2" resultType="CommuDto">
+		SELECT SEQ, TITLE, REGDATE, ID, RENUM FROM COMMUNITY
+		ORDER BY REGDATE DESC LIMIT 5
+	</select>
+	
+	<select id="noticeList2" resultType="NoticeDto">
+		SELECT SORT, TITLE, REGDATE, RENUM FROM NOTICE
+		ORDER BY REGDATE DESC LIMIT 5
+	</select>
+	
+	<select id="meetingList2" resultType="MeetDto">
+		SELECT SEQ, TITLE, REGDATE, ID, RENUM FROM MEETING
+		ORDER BY REGDATE DESC LIMIT 5
+	</select>
+	
+	<!-- 유저 리스트 -->
+	<select id="userList" resultType="UserDto">
+		SELECT NAME,ID,EMAIL1,EMAIL2 FROM USER
+	</select>
+	
+	<!-- 회원 탈퇴 -->
+	<delete id="dropUser" parameterType="String">
+		DELETE FROM USER WHERE ID=#{id}
+	</delete>
+	
+	<!-- 비번 변경 -->
+	<update id="pwModify" parameterType="UserDto">
+		UPDATE USER SET PW=#{pw} WHERE ID=#{id}
+	</update>
+	
+	<!-- CRUD################ -->
+	<!-- 커뮤니티 삭제 -->
+	<delete id="commuDelete" parameterType="CommuDto">
+	DELETE FROM COMMUNITY WHERE SEQ=${seq}
+	</delete>
+	
+	<!-- 커뮤니티 글 수정 -->
+	<update id="commuModify" parameterType="CommuDto">
+	UPDATE COMMUNITY SET TITLE=#{title}, CONTENT=#{content}
+	WHERE SEQ=${seq}
+	</update>
+	
+	<!-- 커뮤니티 글 수정 select -->
+	<select id="commu_modifySelect" resultType="CommuDto"  parameterType="CommuDto">
+		SELECT SEQ,TITLE,CONTENT FROM COMMUNITY WHERE SEQ=${seq}
+	</select>
+	
+</mapper>
+
